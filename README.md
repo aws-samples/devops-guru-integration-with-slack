@@ -52,7 +52,7 @@ We recommend using [AWS Cloud9](https://aws.amazon.com/cloud9/) to create an env
 
 2. Create a new directory, navigate to that directory in a terminal and clone the GitHub repository:
     ``` 
-    git clone https://gitlab.aws.dev/aws-blogs/devops-guru-integration-with-slack.git
+    git clone https://github.com/aws-samples/devops-guru-integration-with-slack.git
     ```
 3. Change directory to the directory where you cloned the Github repository:
     ```
