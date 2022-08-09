@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Publishing DevOps Guru Insights to Slack
+
+Parameters:
+  SlackSecretName:
+    Description: Secret name for Slack Channel Webhook URL
+    Type: String
+    Default: SlackChannelWebhookURL
+    AllowedPattern: ^[a-zA-Z0-9_.-/]*$ 
+  SlackWebhookURL:
+    Description: Slack Channel Webhook URL
+    Type: String
+
+
+Resources:
+##########################################################################
+#  Lambda functions                                                      #
+##########################################################################
+  DevOpsGuruToSlackFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Lambda function to publish DevOps Guru insight to Slack
+      CodeUri: src/
+      Handler: slackhandler.main
+      Runtime: python3.7   
+      MemorySize: 128
+      Timeout: 30
+      Environment:
+        Variables:
+          SLACK_CHANNEL_ID: !Ref SlackSecretName
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref SlackWebhookSecret
+      Events:
+        Trigger:
+          Type: EventBridgeRule
+          Properties:
+            Pattern:
+              source:
+                - aws.devops-guru
+              detail-type:
+                - DevOps Guru New Insight Open
+
+##########################################################################
+#  Secret                                                     #
+##########################################################################
+  SlackWebhookSecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Ref SlackSecretName
+      Description: "Secret to store Slack Webhook URL"
+      SecretString: !Ref SlackWebhookURL
+
+Outputs:
+  DevOpsGuruToSlackFunction:
+    Description: Lambda function to publish DevOps Guru insight to Slack
+    Value: !Ref DevOpsGuruToSlackFunction
